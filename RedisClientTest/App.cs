@@ -11,9 +11,8 @@ namespace RedisClientTest
     {
         static void Main(string[] args)
         {
-            test_write();
-            //test_read();
-
+            //test_write();
+            test_read();
             Console.WriteLine("DONE");
             Console.ReadLine();
         }
@@ -35,6 +34,9 @@ namespace RedisClientTest
 
             string f1 = redis.HGET("test", "f1");
             Console.WriteLine("test > f1 = {0}", f1);
+
+            var keys = redis.HKEYS("test");
+            Console.WriteLine("test = {0}", string.Join(",", keys));
 
 
         }

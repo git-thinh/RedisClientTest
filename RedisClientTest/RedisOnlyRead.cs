@@ -159,6 +159,29 @@ public class RedisOnlyRead : IDisposable
         return null;
     }
 
+    public string[] HKEYS(string key)
+    {
+        try
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("*2\r\n");
+            sb.Append("$5\r\nHKEYS\r\n");
+            sb.AppendFormat("${0}\r\n{1}\r\n", key.Length, key);
+            byte[] buf = Encoding.UTF8.GetBytes(sb.ToString());
+
+            bool ok = Send(buf);
+            var keys = ReadMultiString();
+            return keys;
+        }
+        catch (Exception ex)
+        {
+        }
+        return null;
+    }
+
+
+
+
 
     string ReadLine()
     {
@@ -173,6 +196,39 @@ public class RedisOnlyRead : IDisposable
             sb.Append((char)c);
         }
         return sb.ToString();
+    }
+
+    string ReadString()
+    {
+        var result = ReadBuffer();
+        if (result != null)
+            return Encoding.UTF8.GetString(result);
+        return null;
+    }
+
+    string[] ReadMultiString()
+    {
+        string r = ReadLine();
+        //Log(string.Format("R: {0}", r));
+        if (r.Length == 0)
+            throw new Exception("Zero length respose");
+
+        char c = r[0];
+        if (c == '-')
+            throw new Exception(r.StartsWith("-ERR") ? r.Substring(5) : r.Substring(1));
+
+        List<string> result = new List<string>();
+
+        if (c == '*')
+        {
+            int n;
+            if (Int32.TryParse(r.Substring(1), out n))
+                for (int i = 0; i < n; i++)
+                {
+                    result.Add(ReadString());
+                }
+        }
+        return result.ToArray();
     }
 
     byte[] ReadBuffer()

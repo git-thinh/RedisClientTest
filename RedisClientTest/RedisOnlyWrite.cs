@@ -154,6 +154,12 @@ public class RedisOnlyWrite : IDisposable
         return false;
     }
 
+    public bool HSET(string key, string field, byte[] value)
+        => HMSET(key, new Dictionary<string, byte[]>() { { field, value } });
+
+    public bool HSET(string key, string field, string value)
+        => HMSET(key, new Dictionary<string, string>() { { field, value } });
+
     public bool HMSET(string key, IDictionary<string, string> fields)
     {
         var dic = new Dictionary<string, byte[]>();
