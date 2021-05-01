@@ -335,6 +335,13 @@ public class RedisOnlyWrite : IDisposable
                 ___threadPool.Abort();
         }
         catch { }
+
+        __signals.Clear();
+        __buffers.Clear();
+        __results.Clear();
+        __queue_event.Close();
+        __queue_ids.Clear();
+
         Dispose(false);
     }
     public void Dispose()
