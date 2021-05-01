@@ -11,8 +11,8 @@ namespace RedisClientTest
     {
         static void Main(string[] args)
         {
-            //test_write();
-            test_read();
+            test_write();
+            //test_read();
             Console.WriteLine("DONE");
             Console.ReadLine();
         }
@@ -43,23 +43,23 @@ namespace RedisClientTest
 
         static void test_write()
         {
-            var redis = new RedisOnlyWrite();
+            var redis = new RedisOnlyWrite("localhost", 1000);
             redis.Db = 15;
 
-            bool ok1 = false, ok2 = false, ok3 = false, ok4 = false;
+            bool ok1 = false, ok2 = false, ok3 = false, ok4 = false, ok5 = false;
 
-            ok1 = redis.HMSET("test", new Dictionary<string, string>()
-            {
-                {"f1", Guid.NewGuid().ToString() },
-                {"f2", Guid.NewGuid().ToString() },
-            });
+            //ok1 = redis.HMSET("test", new Dictionary<string, string>()
+            //{
+            //    {"f1", Guid.NewGuid().ToString() },
+            //    {"f2", Guid.NewGuid().ToString() },
+            //});
+            //ok2 = redis.SET("key-1", Guid.NewGuid().ToString());
+            //ok3 = redis.SET("image-1", File.ReadAllBytes(@"C:\Users\nvt3\Pictures\logo.png"));
+            //ok4 = redis.BGSAVE();
 
-            ok2 = redis.SET("key-1", Guid.NewGuid().ToString());
-            ok3 = redis.SET("image-1", File.ReadAllBytes(@"C:\Users\nvt3\Pictures\logo.png"));
+            ok5 = redis.PUBLISH("PSI__PDF_IMAGE_BY_FILE", "123");
 
-            ok4 = redis.BGSAVE();
-
-            Console.WriteLine("{0}> {1} - {2} - {3} - {4}", "", ok1, ok2, ok3, ok4);
+            Console.WriteLine("{0}> {1} - {2} - {3} - {4} - {5}", "", ok1, ok2, ok3, ok4, ok5);
         }
     }
 }

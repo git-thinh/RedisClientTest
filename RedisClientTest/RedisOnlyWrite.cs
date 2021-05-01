@@ -112,6 +112,25 @@ public class RedisOnlyWrite : IDisposable
         return false;
     }
 
+    public bool PUBLISH(string channel, string value)
+    {
+        try
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("*3\r\n");
+            sb.Append("$7\r\nPUBLISH\r\n");
+            sb.AppendFormat("${0}\r\n{1}\r\n", channel.Length, channel);
+            sb.AppendFormat("${0}\r\n{1}\r\n", value.Length, value);
+            byte[] buf = Encoding.UTF8.GetBytes(sb.ToString());
+            return Send(buf) && ReadLine().StartsWith(":");
+        }
+        catch (Exception ex)
+        {
+        }
+        return false;
+    }
+
+
     public bool SET(string key, string value)
     {
         try

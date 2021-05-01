@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
@@ -99,6 +100,16 @@ public class RedisOnlyRead : IDisposable
         var buf = GET_BUFFER(key);
         if (buf == null) return string.Empty;
         else return Encoding.UTF8.GetString(buf);
+    }
+
+    public Bitmap GET_BITMAP(string key)
+    {
+        var buf = GET_BUFFER(key);
+        if (buf == null) return null;
+        else { 
+            var ms = new MemoryStream(buf);
+            return new Bitmap(ms);
+        }
     }
 
     public Stream GET_STREAM(string key)
