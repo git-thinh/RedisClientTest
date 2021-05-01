@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 public class RedisOnlyWrite : IDisposable
 {
@@ -11,22 +12,31 @@ public class RedisOnlyWrite : IDisposable
     const int BUFFER_SIZE_READ = 255; // 255b || 16kb || 64kb
     static readonly byte[] _END_DATA = new byte[] { 13, 10 }; //= \r\n
 
+    long __id = 0;
+    Dictionary<long, AutoResetEvent> __signals = new Dictionary<long, AutoResetEvent>();
+    Dictionary<long, byte[]> __buffers = new Dictionary<long, byte[]>();
+    Dictionary<long, byte> __results = new Dictionary<long, byte>();
+    AutoResetEvent __queue_event = new AutoResetEvent(false);
+    Queue<long> __queue_ids = new Queue<long>();
+    Thread ___threadPool = null;
+
     public string Host { get; private set; }
     public int Port { get; private set; }
     public int SendTimeout { get; set; }
     public int DatabaseNumber { get; set; }
     public string Password { get; set; }
 
-    public RedisOnlyWrite(string host = "localhost", int port = 6379, 
+    public RedisOnlyWrite(string host = "localhost", int port = 6379,
         string password = "", int sendTimeout = 60 * 1000)
     {
         this.Host = host;
         this.Port = port;
         this.SendTimeout = sendTimeout;
         this.Password = password;
+
     }
 
-    void Connect()
+    public void Connect()
     {
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         socket.NoDelay = true;
@@ -42,6 +52,51 @@ public class RedisOnlyWrite : IDisposable
         bstream = new BufferedStream(new NetworkStream(socket), BUFFER_SIZE_READ);
         //if (Password != null)
         //    SendExpectSuccess("AUTH", Password);
+
+        if (___threadPool == null)
+        {
+            ___threadPool = new Thread(() =>
+            {
+                while (true)
+                {
+                    if (__queue_ids.Count == 0)
+                        __queue_event.WaitOne();
+
+                    long id = 0;
+                    byte[] buf = null;
+                    AutoResetEvent sig = null;
+                    byte ok = 0;
+
+                    lock (__queue_ids) id = __queue_ids.Dequeue();
+                    lock (__buffers) buf = __buffers[id];
+                    lock (__buffers) sig = __signals[id];
+
+                    if (socket == null) Connect();
+                    if (socket != null)
+                    {
+                        try
+                        {
+                            socket.Send(buf);
+
+                            // :1 :0 +OK +Background saving started
+                            string line = ReadLine();
+                            if (!string.IsNullOrEmpty(line) && (line[0] == '+' || line[0] == ':'))
+                                ok = 1;
+                        }
+                        catch (SocketException ex)
+                        {
+                            socket.Close();
+                            socket = null;
+                        }
+                    }
+
+                    lock (__results) __results.Add(id, ok);
+                    sig.Set();
+                }
+            });
+            ___threadPool.IsBackground = true;
+            ___threadPool.Start();
+        }
     }
 
 
@@ -56,7 +111,7 @@ public class RedisOnlyWrite : IDisposable
         set
         {
             bool ok = selectDb(value);
-            if (ok && ReadLine() == "+OK")
+            if (ok)
                 db = value;
         }
     }
@@ -80,18 +135,41 @@ public class RedisOnlyWrite : IDisposable
 
     bool Send(byte[] buf)
     {
-        if (socket == null) Connect();
-        if (socket == null) return false;
+        long id = Interlocked.Increment(ref __id);
+        var sig = new AutoResetEvent(false);
 
-        try { socket.Send(buf); }
-        catch (SocketException ex)
+        lock (__buffers) __buffers.Add(id, buf);
+        lock (__signals) __signals.Add(id, sig);
+        lock (__queue_ids) __queue_ids.Enqueue(id);
+
+        __queue_event.Set();
+        sig.WaitOne();
+
+        sig.Close();
+        lock (__buffers) __buffers.Remove(id);
+        lock (__signals) __signals.Remove(id);
+        
+        bool ok = false;
+        lock (__results)
         {
-            // timeout;
-            socket.Close();
-            socket = null;
-            return false;
+            ok = __results[id] == 1;
+            __results.Remove(id);
         }
-        return true;
+
+        ////if (socket == null) Connect();
+        ////if (socket == null) return false;
+        ////try
+        ////{
+        ////    socket.Send(buf);
+        ////}
+        ////catch (SocketException ex)
+        ////{
+        ////    socket.Close();
+        ////    socket = null;
+        ////    return false;
+        ////}
+
+        return ok;
     }
 
     public bool BGSAVE()
@@ -103,7 +181,6 @@ public class RedisOnlyWrite : IDisposable
             sb.Append("$6\r\nBGSAVE\r\n");
             byte[] buf = Encoding.UTF8.GetBytes(sb.ToString());
             var ok = Send(buf);
-            ReadLine(); //+Background saving started
             return ok;
         }
         catch (Exception ex)
@@ -122,7 +199,7 @@ public class RedisOnlyWrite : IDisposable
             sb.AppendFormat("${0}\r\n{1}\r\n", channel.Length, channel);
             sb.AppendFormat("${0}\r\n{1}\r\n", value.Length, value);
             byte[] buf = Encoding.UTF8.GetBytes(sb.ToString());
-            return Send(buf) && ReadLine().StartsWith(":");
+            return Send(buf);
         }
         catch (Exception ex)
         {
@@ -141,7 +218,7 @@ public class RedisOnlyWrite : IDisposable
             sb.AppendFormat("${0}\r\n{1}\r\n", key.Length, key);
             sb.AppendFormat("${0}\r\n{1}\r\n", value.Length, value);
             byte[] buf = Encoding.UTF8.GetBytes(sb.ToString());
-            return Send(buf) && ReadLine() == "+OK";
+            return Send(buf);
         }
         catch (Exception ex)
         {
@@ -161,11 +238,9 @@ public class RedisOnlyWrite : IDisposable
             sb.AppendFormat("${0}\r\n", value.Length);
             byte[] buf = Encoding.UTF8.GetBytes(sb.ToString());
 
-            bool ok = Send(buf);
-            ok = ok & Send(value);
-            ok = ok & Send(_END_DATA);
-
-            return ok && ReadLine() == "+OK";
+            var arr = __combine(buf.Length + value.Length + 2, buf, value, _END_DATA);
+            bool ok = Send(arr);
+            return ok;
         }
         catch (Exception ex)
         {
@@ -214,7 +289,7 @@ public class RedisOnlyWrite : IDisposable
                         ms.Write(_END_DATA, 0, 2);
                     }
                 }
-                return Send(ms.ToArray()) && ReadLine() == "+OK";
+                return Send(ms.ToArray());
             }
         }
         catch (Exception ex)
@@ -223,6 +298,17 @@ public class RedisOnlyWrite : IDisposable
         return false;
     }
 
+    static byte[] __combine(int size, params byte[][] arrays)
+    {
+        byte[] rv = new byte[size];
+        int offset = 0;
+        foreach (byte[] array in arrays)
+        {
+            System.Buffer.BlockCopy(array, 0, rv, offset, array.Length);
+            offset += array.Length;
+        }
+        return rv;
+    }
 
     string ReadLine()
     {
@@ -241,7 +327,16 @@ public class RedisOnlyWrite : IDisposable
         return s;
     }
 
-    ~RedisOnlyWrite() => Dispose(false);
+    ~RedisOnlyWrite()
+    {
+        try
+        {
+            if (___threadPool != null)
+                ___threadPool.Abort();
+        }
+        catch { }
+        Dispose(false);
+    }
     public void Dispose()
     {
         Dispose(true);
