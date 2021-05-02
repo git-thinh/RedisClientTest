@@ -15,8 +15,8 @@ namespace RedisClientWriteTest
             if (!redis.SelectDb(1))
                 throw new Exception("CANNOT CONNECT TO REDIS...");
 
-            //Thread.Sleep(300);
-            //redis.PUBLISH(redis.__MONITOR_CHANNEL, "12345");
+            Thread.Sleep(300);
+            redis.PUBLISH(redis.__MONITOR_CHANNEL, "12345");
 
             string cmd = Console.ReadLine();
             while (cmd != "exit")

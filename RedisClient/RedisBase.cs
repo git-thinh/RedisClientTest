@@ -127,7 +127,7 @@ public class RedisBase : IDisposable
 
             var ok = SendBuffer(buf);
             var line = ReadLine();
-            Console.WriteLine("->" + line);
+            //Console.WriteLine("->" + line);
             return ok;
         }
         catch (Exception ex)

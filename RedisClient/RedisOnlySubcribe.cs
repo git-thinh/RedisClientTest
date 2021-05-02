@@ -10,6 +10,7 @@ public class RedisOnlySubcribe : RedisBase
 {
     const string MESSAGE_SPLIT = "}>\r\n$";
     const int TIME_OUT_WAITING_DATA = 100; // miliseconds
+    const int BUFFER_HEADER_MAX_SIZE = 1000;
 
     Thread ___threadStream = null;
     Dictionary<string, Action<byte[]>> __channels = new Dictionary<string, Action<byte[]>>();
@@ -53,7 +54,7 @@ public class RedisOnlySubcribe : RedisBase
 
             lock (__queue) buf = __queue.Dequeue();
             len = buf.Length;
-            if (buf.Length > 1000) len = 1000;
+            if (buf.Length > BUFFER_HEADER_MAX_SIZE) len = BUFFER_HEADER_MAX_SIZE;
 
             s = Encoding.ASCII.GetString(buf, 0, len);
             a = s.Split(new string[] { MESSAGE_SPLIT }, StringSplitOptions.None);
