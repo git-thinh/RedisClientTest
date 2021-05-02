@@ -10,13 +10,20 @@ namespace RedisSubcribeTest
         {
             Console.WriteLine("TEST SUBCRIBE FROM REDIS ....\r\n");
 
-            var redis = new RedisOnlySubcribe("localhost", 1001);
-            if (!redis.SelectDb(1))
+            var r1 = new RedisOnlySubcribe("localhost", 1001);
+            if (!r1.SelectDb(1))
                 throw new Exception("CANNOT CONNECT TO REDIS...");
+            r1.Subcribe(r1.__MONITOR_CHANNEL, (buf) =>
+            {
 
-            redis.Subcribe();
+            });
 
-            Console.WriteLine("DONE");
+            //var r2 = new RedisOnlySubcribe("localhost", 1002);
+            //if (!r2.SelectDb(1))
+            //    throw new Exception("CANNOT CONNECT TO REDIS...");
+            //r2.Subcribe();
+
+            Console.WriteLine("LISTENING ........");
             Console.ReadLine();
         }
     }

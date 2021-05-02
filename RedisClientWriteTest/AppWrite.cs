@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace RedisClientTest
+namespace RedisClientWriteTest
 {
     class AppWrite
     {
@@ -15,7 +15,8 @@ namespace RedisClientTest
                 throw new Exception("CANNOT CONNECT TO REDIS...");
 
             string cmd = Console.ReadLine();
-            while (cmd != "exit") {
+            while (cmd != "exit")
+            {
                 redis.PUBLISH(redis.__MONITOR_CHANNEL, cmd);
                 cmd = Console.ReadLine();
             }

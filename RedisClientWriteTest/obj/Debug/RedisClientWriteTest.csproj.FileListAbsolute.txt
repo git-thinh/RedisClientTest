@@ -1,0 +1,16 @@
+C:\tt\RedisClientTest\RedisClientTest\bin\Debug\RedisClientTest.exe
+C:\tt\RedisClientTest\RedisClientTest\bin\Debug\RedisClientTest.pdb
+C:\tt\RedisClientTest\RedisClientTest\bin\Debug\RedisClient.dll
+C:\tt\RedisClientTest\RedisClientTest\bin\Debug\RedisClient.pdb
+C:\tt\RedisClientTest\Debug\RedisClientWriteTest.exe
+C:\tt\RedisClientTest\Debug\RedisClientWriteTest.pdb
+C:\tt\RedisClientTest\RedisClientTest\obj\Debug\RedisClientWriteTest.csprojAssemblyReference.cache
+C:\tt\RedisClientTest\RedisClientTest\obj\Debug\RedisClientWriteTest.csproj.CoreCompileInputs.cache
+C:\tt\RedisClientTest\RedisClientTest\obj\Debug\RedisClientWriteTest.csproj.CopyComplete
+C:\tt\RedisClientTest\RedisClientTest\obj\Debug\RedisClientWriteTest.exe
+C:\tt\RedisClientTest\RedisClientTest\obj\Debug\RedisClientWriteTest.pdb
+C:\tt\RedisClientTest\RedisClientWriteTest\obj\Debug\RedisClientWriteTest.csprojAssemblyReference.cache
+C:\tt\RedisClientTest\RedisClientWriteTest\obj\Debug\RedisClientWriteTest.csproj.CoreCompileInputs.cache
+C:\tt\RedisClientTest\RedisClientWriteTest\obj\Debug\RedisClientWriteTest.csproj.CopyComplete
+C:\tt\RedisClientTest\RedisClientWriteTest\obj\Debug\RedisClientWriteTest.exe
+C:\tt\RedisClientTest\RedisClientWriteTest\obj\Debug\RedisClientWriteTest.pdb

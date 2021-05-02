@@ -76,7 +76,7 @@ public class RedisBase : IDisposable
     void Connect()
     {
         socket.Connect(Host, Port);
-        if (!socket.Connected)
+        if (!this.Connected)
         {
             socket.Close();
             socket = null;
@@ -87,7 +87,13 @@ public class RedisBase : IDisposable
     }
 
 
-
+    public bool Connected
+    {
+        get
+        {
+            return socket != null || socket.Connected;
+        }
+    }
 
     public bool SelectDb(int indexDb)
     {

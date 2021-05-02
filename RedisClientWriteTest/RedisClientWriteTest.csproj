@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{BC1DF9C1-5270-4A09-AEAB-59D295D1E26C}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>RedisClientTest</RootNamespace>
-    <AssemblyName>RedisClientTest</AssemblyName>
+    <RootNamespace>RedisClientWriteTest</RootNamespace>
+    <AssemblyName>RedisClientWriteTest</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>

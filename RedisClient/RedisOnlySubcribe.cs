@@ -10,6 +10,7 @@ public class RedisOnlySubcribe : RedisBase
 {
     Thread ___thread = null;
     AutoResetEvent __event = new AutoResetEvent(false);
+    Dictionary<string, Action<byte[]>> __channels = new Dictionary<string, Action<byte[]>>();
 
     public RedisOnlySubcribe(
         string host = "localhost",
@@ -50,16 +51,26 @@ public class RedisOnlySubcribe : RedisBase
         }
     }
 
-    public void Subcribe()
+    public bool Subcribe(string channel, Action<byte[]> action)
     {
-        PSUBSCRIBE(__MONITOR_CHANNEL);
-        __event.Set();
+        if (action == null || string.IsNullOrEmpty(channel))
+            return false;
+
+        bool ok = PSUBSCRIBE(channel);
+        if (ok)
+        {
+            lock (__channels)
+            {
+                __channels.Add(channel, action);
+                if (__channels.Count == 1) __event.Set();
+            }
+        }
+        return ok;
     }
 
     bool PSUBSCRIBE(string channel)
     {
         if (string.IsNullOrEmpty(channel)) return false;
-
         try
         {
             StringBuilder sb = new StringBuilder();

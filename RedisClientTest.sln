@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31129.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisClientWriteTest", "RedisClientTest\RedisClientWriteTest.csproj", "{BC1DF9C1-5270-4A09-AEAB-59D295D1E26C}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisClient", "RedisClient\RedisClient.csproj", "{AB132230-A2E2-48C2-B913-711CABC80F45}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisSubcribeTest", "RedisSubcribeTest\RedisSubcribeTest.csproj", "{73C8AB63-4F3E-4BE3-8F43-198C97346DC9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisClientReadTest", "RedisClientReadTest\RedisClientReadTest.csproj", "{4D806F58-A1E6-412B-9BAD-CCF4CA784DEC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisClientWriteTest", "RedisClientWriteTest\RedisClientWriteTest.csproj", "{BC1DF9C1-5270-4A09-AEAB-59D295D1E26C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BC1DF9C1-5270-4A09-AEAB-59D295D1E26C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BC1DF9C1-5270-4A09-AEAB-59D295D1E26C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BC1DF9C1-5270-4A09-AEAB-59D295D1E26C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BC1DF9C1-5270-4A09-AEAB-59D295D1E26C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AB132230-A2E2-48C2-B913-711CABC80F45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AB132230-A2E2-48C2-B913-711CABC80F45}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB132230-A2E2-48C2-B913-711CABC80F45}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -33,6 +29,10 @@ Global
 		{4D806F58-A1E6-412B-9BAD-CCF4CA784DEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D806F58-A1E6-412B-9BAD-CCF4CA784DEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D806F58-A1E6-412B-9BAD-CCF4CA784DEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC1DF9C1-5270-4A09-AEAB-59D295D1E26C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC1DF9C1-5270-4A09-AEAB-59D295D1E26C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC1DF9C1-5270-4A09-AEAB-59D295D1E26C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC1DF9C1-5270-4A09-AEAB-59D295D1E26C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

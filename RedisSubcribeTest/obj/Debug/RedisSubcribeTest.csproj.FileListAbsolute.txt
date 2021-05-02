@@ -1,9 +1,11 @@
 C:\tt\RedisClientTest\RedisSubcribeTest\bin\Debug\RedisSubcribeTest.exe
 C:\tt\RedisClientTest\RedisSubcribeTest\bin\Debug\RedisSubcribeTest.pdb
-C:\tt\RedisClientTest\RedisSubcribeTest\obj\Debug\RedisSubcribeTest.csprojAssemblyReference.cache
-C:\tt\RedisClientTest\RedisSubcribeTest\obj\Debug\RedisSubcribeTest.csproj.CoreCompileInputs.cache
-C:\tt\RedisClientTest\RedisSubcribeTest\obj\Debug\RedisSubcribeTest.exe
-C:\tt\RedisClientTest\RedisSubcribeTest\obj\Debug\RedisSubcribeTest.pdb
 C:\tt\RedisClientTest\RedisSubcribeTest\bin\Debug\RedisClient.dll
 C:\tt\RedisClientTest\RedisSubcribeTest\bin\Debug\RedisClient.pdb
+C:\tt\RedisClientTest\Debug\RedisSubcribeTest.exe
+C:\tt\RedisClientTest\Debug\RedisSubcribeTest.pdb
+C:\tt\RedisClientTest\RedisSubcribeTest\obj\Debug\RedisSubcribeTest.csprojAssemblyReference.cache
+C:\tt\RedisClientTest\RedisSubcribeTest\obj\Debug\RedisSubcribeTest.csproj.CoreCompileInputs.cache
 C:\tt\RedisClientTest\RedisSubcribeTest\obj\Debug\RedisSubcribeTest.csproj.CopyComplete
+C:\tt\RedisClientTest\RedisSubcribeTest\obj\Debug\RedisSubcribeTest.exe
+C:\tt\RedisClientTest\RedisSubcribeTest\obj\Debug\RedisSubcribeTest.pdb
