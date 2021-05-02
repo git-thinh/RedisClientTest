@@ -27,7 +27,7 @@ public class RedisOnlyRead : IDisposable
         this.Password = password;
     }
 
-    void Connect()
+    public void Connect()
     {
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         socket.NoDelay = true;

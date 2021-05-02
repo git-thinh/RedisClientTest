@@ -21,20 +21,25 @@ public class RedisOnlyWrite : IDisposable
     Queue<long> __queue_ids = new Queue<long>();
     Thread ___threadPool = null;
 
-    public string Host { get; private set; }
-    public int Port { get; private set; }
-    public int SendTimeout { get; set; }
-    public int DatabaseNumber { get; set; }
-    public string Password { get; set; }
+    public string Host { get; }
+    public int Port { get; }
+    public int SendTimeout { get; }
+    public int DatabaseNumber { get; }
+    public string Password { get; }
+    public bool IsNotifyLog { get; }
+    public bool IsNotifyChannal { get; }
 
     public RedisOnlyWrite(string host = "localhost", int port = 6379,
-        string password = "", int sendTimeout = 60 * 1000)
+        string password = "", 
+        bool notifyLog = true, bool notifyChannel = true,
+        int sendTimeout = 60 * 1000)
     {
         this.Host = host;
         this.Port = port;
         this.SendTimeout = sendTimeout;
         this.Password = password;
-
+        this.IsNotifyChannal = notifyChannel;
+        this.IsNotifyLog = notifyLog;
     }
 
     public void Connect()
@@ -101,15 +106,24 @@ public class RedisOnlyWrite : IDisposable
                         if (arr.Length > 1)
                         {
                             byte[] notiBuf = null;
-                            string msg = noti.Substring(arr[0].Length + 1, noti.Length - 1 - arr[0].Length) +
+                            string channel = arr[0],
+                                msg = noti.Substring(channel.Length + 1, noti.Length - 1 - channel.Length) +
                                 DateTime.Now.ToString("^yyyyMMddHHmmss");
-                            if (arr[0].Length > 0)
+                            if (channel.Length > 0)
                             {
-                                notiBuf = __notifyBodyCreate(arr[0], msg);
-                                socket.Send(notiBuf);
+                                if (IsNotifyChannal)
+                                {
+                                    notiBuf = __notifyBodyCreate(channel, msg);
+                                    socket.Send(notiBuf);
+                                    ReadLine();
+                                }
                             }
-                            notiBuf = __notifyBodyCreate("__LOG_ALL", msg);
-                            socket.Send(notiBuf);
+                            if (IsNotifyLog)
+                            {
+                                notiBuf = __notifyBodyCreate("__LOG_ALL", msg);
+                                socket.Send(notiBuf);
+                                ReadLine();
+                            }
                         }
                     }
                 }
