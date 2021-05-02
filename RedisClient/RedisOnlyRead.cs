@@ -54,7 +54,6 @@ public class RedisOnlyRead : RedisBase
             byte[] buf = Encoding.UTF8.GetBytes(sb.ToString());
 
             bool ok = SendBuffer(buf);
-            string line = ReadLine();
             var rs = ReadBuffer();
 
             return rs;

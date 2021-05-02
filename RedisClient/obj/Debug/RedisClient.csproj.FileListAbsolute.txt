@@ -3,3 +3,4 @@ C:\tt\RedisClientTest\RedisClient\bin\Debug\RedisClient.pdb
 C:\tt\RedisClientTest\RedisClient\obj\Debug\RedisClient.csproj.CoreCompileInputs.cache
 C:\tt\RedisClientTest\RedisClient\obj\Debug\RedisClient.dll
 C:\tt\RedisClientTest\RedisClient\obj\Debug\RedisClient.pdb
+C:\tt\RedisClientTest\RedisClient\obj\Debug\RedisClient.csprojAssemblyReference.cache
