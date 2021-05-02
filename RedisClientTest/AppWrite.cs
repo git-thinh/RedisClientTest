@@ -17,6 +17,8 @@ namespace RedisClientTest
             bool ok1 = false, ok2 = false, ok3 = false, ok4 = false, ok5 = false;
 
             ok2 = redis.SET("key-1", Guid.NewGuid().ToString());
+            ok2 = redis.SET("key-2", Guid.NewGuid().ToString());
+
             ok3 = redis.SET("image-1", File.ReadAllBytes(@"C:\Users\nvt3\Pictures\logo.png"));
             ok1 = redis.HMSET("test", new Dictionary<string, string>()
             {
