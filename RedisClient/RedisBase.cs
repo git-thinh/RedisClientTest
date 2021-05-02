@@ -116,6 +116,11 @@ public class RedisBase : IDisposable
 
     public bool PUBLISH(string channel, string value)
     {
+        if (string.IsNullOrEmpty(channel)) return false;
+
+        if (channel != __MONITOR_CHANNEL) channel = "<{" + channel + "}>";
+        channel = channel.ToUpper();
+
         try
         {
             StringBuilder sb = new StringBuilder();

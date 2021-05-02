@@ -13,10 +13,17 @@ namespace RedisSubcribeTest
             var r1 = new RedisOnlySubcribe("localhost", 1001);
             if (!r1.SelectDb(1))
                 throw new Exception("CANNOT CONNECT TO REDIS...");
-            r1.Subcribe(r1.__MONITOR_CHANNEL, (buf) =>
+
+            r1.Subcribe(r1.__MONITOR_CHANNEL, (obj) =>
             {
-                string s = Encoding.UTF8.GetString(buf);
-                Console.WriteLine("----> {0}", s);
+                string s = Encoding.UTF8.GetString(obj.Buffer);
+                Console.WriteLine("----> [MONITOR] {0}: {1}", obj.Channel, s);
+            });
+
+            r1.Subcribe("C1", (obj) =>
+            {
+                string s = Encoding.UTF8.GetString(obj.Buffer);
+                Console.WriteLine("----> {0}: {1}", obj.Channel, s);
             });
 
             //var r2 = new RedisOnlySubcribe("localhost", 1002);

@@ -21,7 +21,8 @@ namespace RedisClientWriteTest
             string cmd = Console.ReadLine();
             while (cmd != "exit")
             {
-                redis.PUBLISH(redis.__MONITOR_CHANNEL, cmd);
+                if (cmd.StartsWith("c1")) redis.PUBLISH("C1", cmd);
+                else redis.PUBLISH(redis.__MONITOR_CHANNEL, cmd);
                 cmd = Console.ReadLine();
             }
 
