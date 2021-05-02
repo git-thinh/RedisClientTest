@@ -11,7 +11,7 @@ namespace RedisClientTest
             Console.WriteLine("TEST WRITE TO REDIS ....\r\n");
 
             var redis = new RedisOnlyWrite("localhost", 1000);
-            if (!redis.SelectDb(15))
+            if (!redis.SelectDb(1))
                 throw new Exception("CANNOT CONNECT TO REDIS...");
 
             bool ok1 = false, ok2 = false, ok3 = false, ok4 = false, ok5 = false;
