@@ -13,7 +13,7 @@ public enum REDIS_TYPE
 
 public class RedisBase : IDisposable
 {
-    public readonly string __MONITOR_CHANNEL = "__{MONITOR}__";
+    public readonly string __MONITOR_CHANNEL = "<{__MONITOR__}>";
 
     internal static readonly byte[] _END_DATA = new byte[] { 13, 10 }; //= \r\n
     internal static byte[] __combine(int size, params byte[][] arrays)

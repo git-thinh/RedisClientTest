@@ -15,7 +15,8 @@ namespace RedisSubcribeTest
                 throw new Exception("CANNOT CONNECT TO REDIS...");
             r1.Subcribe(r1.__MONITOR_CHANNEL, (buf) =>
             {
-
+                string s = Encoding.UTF8.GetString(buf);
+                Console.WriteLine("----> {0}", s);
             });
 
             //var r2 = new RedisOnlySubcribe("localhost", 1002);

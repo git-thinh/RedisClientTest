@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 
 namespace RedisClientWriteTest
 {
@@ -13,6 +14,9 @@ namespace RedisClientWriteTest
             var redis = new RedisOnlyWrite("localhost", 1000);
             if (!redis.SelectDb(1))
                 throw new Exception("CANNOT CONNECT TO REDIS...");
+
+            //Thread.Sleep(300);
+            //redis.PUBLISH(redis.__MONITOR_CHANNEL, "12345");
 
             string cmd = Console.ReadLine();
             while (cmd != "exit")
