@@ -40,7 +40,6 @@
     <Compile Include="CMD_NOTE.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RedisBase.cs" />
-    <Compile Include="RedisOnlyMonitor.cs" />
     <Compile Include="RedisOnlySubcribe.cs" />
     <Compile Include="RedisOnlyRead.cs" />
     <Compile Include="RedisOnlyWrite.cs" />

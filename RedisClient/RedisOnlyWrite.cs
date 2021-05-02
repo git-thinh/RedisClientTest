@@ -26,7 +26,7 @@ public class RedisOnlyWrite : RedisBase
         int bufferSizeRead = 255, // 255 bytes
         bool isNotify = true,
         bool isMonitor = true)
-        : base(host, port, password, sendTimeout, recieveTimeout, bufferSizeRead)
+        : base(REDIS_TYPE.ONLY_WRITE, host, port, password, sendTimeout, recieveTimeout, bufferSizeRead)
     {
         IsNotify = isNotify;
         IsMonitor = isMonitor;

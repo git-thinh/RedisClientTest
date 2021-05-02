@@ -8,13 +8,12 @@ public enum REDIS_TYPE
 {
     ONLY_READ,
     ONLY_WRITE,
-    ONLY_MONITOR,
     ONLY_SUBCRIBE
 }
 
 public class RedisBase : IDisposable
 {
-    public readonly string __MONITOR_CHANNEL = "__MONITOR";
+    public readonly string __MONITOR_CHANNEL = "__{MONITOR}__";
 
     internal static readonly byte[] _END_DATA = new byte[] { 13, 10 }; //= \r\n
     internal static byte[] __combine(int size, params byte[][] arrays)
@@ -32,7 +31,7 @@ public class RedisBase : IDisposable
     private Socket socket;
     private BufferedStream bstream;
     private NetworkStream networkStream;
-    internal BufferedStream m_stream { get { return bstream; } }
+    internal NetworkStream m_stream { get { return networkStream; } }
 
     internal int BufferSizeRead { get; } = 16 * 1024; // 1kb || 16kb || 64kb
 
@@ -83,7 +82,8 @@ public class RedisBase : IDisposable
             socket = null;
             return;
         }
-        bstream = new BufferedStream(new NetworkStream(socket), this.BufferSizeRead);
+        networkStream = new NetworkStream(socket);
+        bstream = new BufferedStream(networkStream, this.BufferSizeRead);
     }
 
 

@@ -14,7 +14,7 @@ public class RedisOnlyRead : RedisBase
         int sendTimeout = 5000, // 5 seconds
         int recieveTimeout = 3 * 60 * 1000, // 3 minus        
         int bufferSizeRead = 512 * 1024) // 8kb || 64kb
-        : base(host, port, password, sendTimeout, recieveTimeout, bufferSizeRead)
+        : base(REDIS_TYPE.ONLY_READ, host, port, password, sendTimeout, recieveTimeout, bufferSizeRead)
     {
     }
 
