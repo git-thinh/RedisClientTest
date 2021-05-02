@@ -41,6 +41,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RedisOnlyRead.cs" />
     <Compile Include="RedisOnlyWrite.cs" />
+    <Compile Include="REDIS_CMD.cs" />
+    <Compile Include="ResponseException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
