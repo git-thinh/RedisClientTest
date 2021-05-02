@@ -14,6 +14,13 @@ namespace RedisClientTest
             if (!redis.SelectDb(1))
                 throw new Exception("CANNOT CONNECT TO REDIS...");
 
+            string cmd = Console.ReadLine();
+            while (cmd != "exit") {
+                redis.PUBLISH(redis.__MONITOR_CHANNEL, cmd);
+                cmd = Console.ReadLine();
+            }
+
+
             bool ok1 = false, ok2 = false, ok3 = false, ok4 = false, ok5 = false;
 
             ok2 = redis.SET("key-1", Guid.NewGuid().ToString());

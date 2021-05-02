@@ -6,17 +6,9 @@ using System.Text;
 
 public class RedisBase : IDisposable
 {
+    public readonly string __MONITOR_CHANNEL = "__MONITOR";
+
     internal static readonly byte[] _END_DATA = new byte[] { 13, 10 }; //= \r\n
-    internal static byte[] __notifyBodyCreate(string channel, string value)
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.Append("*3\r\n");
-        sb.Append("$7\r\nPUBLISH\r\n");
-        sb.AppendFormat("${0}\r\n{1}\r\n", channel.Length, channel);
-        sb.AppendFormat("${0}\r\n{1}\r\n", value.Length, value);
-        byte[] buf = Encoding.UTF8.GetBytes(sb.ToString());
-        return buf;
-    }
     internal static byte[] __combine(int size, params byte[][] arrays)
     {
         byte[] rv = new byte[size];
@@ -41,13 +33,13 @@ public class RedisBase : IDisposable
     public int DatabaseNumber { get; }
     public string Password { get; }
 
-    public bool IsNotifyChannal { get; set; }
-    public bool IsNotifyLog { get; set; }
+    public bool IsNotify { get; set; }
+    public bool IsMonitor { get; set; }
 
     internal RedisBase(
-        string host, 
+        string host,
         int port,
-        string password, 
+        string password,
         int sendTimeout,
         int recieveTimeout,
         int bufferSizeRead)
@@ -102,14 +94,21 @@ public class RedisBase : IDisposable
         return false;
     }
 
-
-
     public bool PUBLISH(string channel, string value)
     {
         try
         {
-            byte[] buf = __notifyBodyCreate(channel, value);
-            return SendBuffer(buf);
+            StringBuilder sb = new StringBuilder();
+            sb.Append("*3\r\n");
+            sb.Append("$7\r\nPUBLISH\r\n");
+            sb.AppendFormat("${0}\r\n{1}\r\n", channel.Length, channel);
+            sb.AppendFormat("${0}\r\n{1}\r\n", value.Length, value);
+            byte[] buf = Encoding.UTF8.GetBytes(sb.ToString());
+
+            var ok = SendBuffer(buf);
+            var line = ReadLine();
+            Console.WriteLine("->" + line);
+            return ok;
         }
         catch (Exception ex)
         {
@@ -180,7 +179,8 @@ public class RedisBase : IDisposable
             if (Int32.TryParse(r.Substring(1), out n))
                 for (int i = 0; i < n; i++)
                 {
-                    result.Add(ReadString());
+                    string str = ReadString();
+                    result.Add(str);
                 }
         }
         return result.ToArray();
@@ -232,6 +232,9 @@ public class RedisBase : IDisposable
 			throw new ResponseException ("Unexpected length parameter" + r);
 		}
 		*/
+
+        if (c == ':')
+            return Encoding.ASCII.GetBytes(s);
 
         throw new ResponseException("Unexpected reply: " + s);
     }

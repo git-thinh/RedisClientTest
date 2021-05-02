@@ -1,0 +1,9 @@
+C:\tt\RedisClientTest\RedisMonitorTest\bin\Debug\RedisMonitorTest.exe
+C:\tt\RedisClientTest\RedisMonitorTest\bin\Debug\RedisMonitorTest.pdb
+C:\tt\RedisClientTest\RedisMonitorTest\bin\Debug\RedisClient.dll
+C:\tt\RedisClientTest\RedisMonitorTest\bin\Debug\RedisClient.pdb
+C:\tt\RedisClientTest\RedisMonitorTest\obj\Debug\RedisMonitorTest.csproj.CoreCompileInputs.cache
+C:\tt\RedisClientTest\RedisMonitorTest\obj\Debug\RedisMonitorTest.csproj.CopyComplete
+C:\tt\RedisClientTest\RedisMonitorTest\obj\Debug\RedisMonitorTest.exe
+C:\tt\RedisClientTest\RedisMonitorTest\obj\Debug\RedisMonitorTest.pdb
+C:\tt\RedisClientTest\RedisMonitorTest\obj\Debug\RedisMonitorTest.csprojAssemblyReference.cache

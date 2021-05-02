@@ -4,16 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{AB132230-A2E2-48C2-B913-711CABC80F45}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RedisClient</RootNamespace>
-    <AssemblyName>RedisClient</AssemblyName>
+    <ProjectGuid>{25C708A6-E3ED-42E2-B202-A43CE2B33C2F}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>RedisMonitorTest</RootNamespace>
+    <AssemblyName>RedisMonitorTest</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -33,19 +34,17 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CMD_NOTE.cs" />
+    <Compile Include="AppMonitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RedisBase.cs" />
-    <Compile Include="RedisOnlyMonitor.cs" />
-    <Compile Include="RedisOnlySubcribe.cs" />
-    <Compile Include="RedisOnlyRead.cs" />
-    <Compile Include="RedisOnlyWrite.cs" />
-    <Compile Include="REDIS_CMD.cs" />
-    <Compile Include="ResponseException.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RedisClient\RedisClient.csproj">
+      <Project>{ab132230-a2e2-48c2-b913-711cabc80f45}</Project>
+      <Name>RedisClient</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

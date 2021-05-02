@@ -8,13 +8,14 @@ using System.Threading;
 public class RedisOnlyWrite : RedisBase
 {
     long __id = 0;
+    Thread ___threadPool = null;
+    Queue<long> __queue_ids = new Queue<long>();
+    AutoResetEvent __queue_event = new AutoResetEvent(false);
+
     Dictionary<long, string> __notifier = new Dictionary<long, string>();
     Dictionary<long, AutoResetEvent> __signals = new Dictionary<long, AutoResetEvent>();
     Dictionary<long, byte[]> __buffers = new Dictionary<long, byte[]>();
     Dictionary<long, byte> __results = new Dictionary<long, byte>();
-    AutoResetEvent __queue_event = new AutoResetEvent(false);
-    Queue<long> __queue_ids = new Queue<long>();
-    Thread ___threadPool = null;
 
     public RedisOnlyWrite(
         string host = "localhost",
@@ -23,12 +24,12 @@ public class RedisOnlyWrite : RedisBase
         int sendTimeout = 3 * 60 * 1000, // 5 minus
         int recieveTimeout = 5000, // 5 seconds        
         int bufferSizeRead = 255, // 255 bytes
-        bool notifyChannal = true,
-        bool notifyLog = true)
+        bool isNotify = true,
+        bool isMonitor = true)
         : base(host, port, password, sendTimeout, recieveTimeout, bufferSizeRead)
     {
-        IsNotifyChannal = notifyChannal;
-        IsNotifyLog = notifyLog;
+        IsNotify = isNotify;
+        IsMonitor = isMonitor;
 
         if (___threadPool == null)
         {
@@ -77,21 +78,12 @@ public class RedisOnlyWrite : RedisBase
                         string channel = arr[0],
                             msg = noti.Substring(channel.Length + 1, noti.Length - 1 - channel.Length) +
                             DateTime.Now.ToString("^yyyyMMddHHmmss");
-                        if (channel.Length > 0)
-                        {
-                            if (IsNotifyChannal)
-                            {
-                                notiBuf = __notifyBodyCreate(channel, msg);
-                                SendBuffer(notiBuf);
-                                ReadLine();
-                            }
-                        }
-                        if (IsNotifyLog)
-                        {
-                            notiBuf = __notifyBodyCreate("__LOG_ALL", msg);
-                            SendBuffer(notiBuf);
-                            ReadLine();
-                        }
+
+                        if (channel.Length > 0 && IsNotify)
+                               PUBLISH(channel, msg);
+                        
+                        if (IsMonitor)
+                            PUBLISH(__MONITOR_CHANNEL, msg);
                     }
                 }
             }
