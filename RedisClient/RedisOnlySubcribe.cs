@@ -3,19 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
-public class oRedisNotify
-{
-    public IDictionary<string, object> Paramenters { get; }
-    public string Channel { get; }
-    public byte[] Buffer { get; }
-    public oRedisNotify(string channel, byte[] buf, IDictionary<string, object> paramenters = null)
-    {
-        this.Channel = channel;
-        this.Buffer = buf;
-        this.Paramenters = paramenters;
-    }
-}
-
 public class RedisOnlySubcribe : RedisBase
 {
     const string MESSAGE_SPLIT_END = "}>\r\n$";
@@ -24,7 +11,7 @@ public class RedisOnlySubcribe : RedisBase
     const int BUFFER_HEADER_MAX_SIZE = 1000;
 
     Thread ___threadStream = null;
-    Dictionary<string, Action<oRedisNotify>> __channels = new Dictionary<string, Action<oRedisNotify>>();
+    Dictionary<string, Action<RedisMessage>> __channels = new Dictionary<string, Action<RedisMessage>>();
     Dictionary<string, IDictionary<string, object>> __paramenters = new Dictionary<string, IDictionary<string, object>>();
 
     Thread ___threadAction = null;
@@ -32,7 +19,7 @@ public class RedisOnlySubcribe : RedisBase
     Queue<byte[]> __queue = new Queue<byte[]>();
 
     object __lockMonitor = new object();
-    Action<oRedisNotify> __actionMonitor = null;
+    Action<RedisMessage> __actionMonitor = null;
 
     public RedisOnlySubcribe(
         string host = "localhost",
@@ -83,8 +70,8 @@ public class RedisOnlySubcribe : RedisBase
                     a = a[a.Length - 2].Split(new string[] { MESSAGE_SPLIT_BEGIN }, StringSplitOptions.None);
                     string channel = a[a.Length - 1];
 
-                    oRedisNotify noti;
-                    Action<oRedisNotify> call = null;
+                    RedisMessage noti;
+                    Action<RedisMessage> call = null;
                     IDictionary<string, object> para = null;
 
                     if (!string.IsNullOrEmpty(channel))
@@ -96,14 +83,14 @@ public class RedisOnlySubcribe : RedisBase
                             lock (__paramenters) if (__paramenters.ContainsKey(channelKey)) __paramenters.TryGetValue(channelKey, out para);
                         }
 
-                        noti = new oRedisNotify(channel, bs, para);
+                        noti = new RedisMessage(channel, bs, para);
 
                         if (call != null)
                         {
                             var ta = new Thread(new ParameterizedThreadStart((o) =>
                             {
                                 lock (call)
-                                    call((oRedisNotify)o);
+                                    call((RedisMessage)o);
                             }));
                             ta.IsBackground = true;
                             ta.Start(noti);
@@ -114,7 +101,7 @@ public class RedisOnlySubcribe : RedisBase
                             var tm = new Thread(new ParameterizedThreadStart((o) =>
                             {
                                 lock (__lockMonitor)
-                                    __actionMonitor((oRedisNotify)o);
+                                    __actionMonitor((RedisMessage)o);
                             }));
                             tm.IsBackground = true;
                             tm.Start(noti);
@@ -150,7 +137,7 @@ public class RedisOnlySubcribe : RedisBase
         }
     }
 
-    public bool Subcribe(string channel, Action<oRedisNotify> action, IDictionary<string, object> paramenters = null)
+    public bool Subcribe(string channel, Action<RedisMessage> action, IDictionary<string, object> paramenters = null)
     {
         if (action == null || string.IsNullOrEmpty(channel)) return false;
 
