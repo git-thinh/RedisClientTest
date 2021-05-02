@@ -4,6 +4,14 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text;
 
+public enum REDIS_TYPE
+{
+    ONLY_READ,
+    ONLY_WRITE,
+    ONLY_MONITOR,
+    ONLY_SUBCRIBE
+}
+
 public class RedisBase : IDisposable
 {
     public readonly string __MONITOR_CHANNEL = "__MONITOR";
@@ -23,6 +31,8 @@ public class RedisBase : IDisposable
 
     private Socket socket;
     private BufferedStream bstream;
+    private NetworkStream networkStream;
+    internal BufferedStream m_stream { get { return bstream; } }
 
     internal int BufferSizeRead { get; } = 16 * 1024; // 1kb || 16kb || 64kb
 
@@ -36,7 +46,10 @@ public class RedisBase : IDisposable
     public bool IsNotify { get; set; }
     public bool IsMonitor { get; set; }
 
+    public REDIS_TYPE Type { get; }
+
     internal RedisBase(
+        REDIS_TYPE type,
         string host,
         int port,
         string password,
@@ -44,6 +57,7 @@ public class RedisBase : IDisposable
         int recieveTimeout,
         int bufferSizeRead)
     {
+        this.Type = type;
         this.Host = host;
         this.Port = port;
         this.SendTimeout = sendTimeout;

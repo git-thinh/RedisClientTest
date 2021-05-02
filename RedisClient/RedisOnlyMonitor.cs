@@ -28,16 +28,35 @@ public class RedisOnlyMonitor : RedisBase
 
     void __monitorDataFromRedis()
     {
+        __queue_event.WaitOne();
+
+        var reader = new StreamReader(m_stream);
+
+        string s = string.Empty;
+        var bs = new List<int>();
+        int b = 0;
         while (true)
         {
-            if (__queue_ids.Count == 0)
-                __queue_event.WaitOne();
+            if (!reader.EndOfStream)
+                b = m_stream.ReadByte();
+
+            if (b == 0)
+            {
+                Console.WriteLine("\t\t=> {0}", bs.Count);
+                bs.Clear();
+
+                Thread.Sleep(1000);
+                continue;
+            }
+            bs.Add(b);
         }
+
     }
 
     public void Subcribe()
     {
         PSUBSCRIBE(__MONITOR_CHANNEL);
+        __queue_event.Set();
     }
 
     bool PSUBSCRIBE(string channel)
@@ -54,6 +73,7 @@ public class RedisOnlyMonitor : RedisBase
             byte[] buf = Encoding.UTF8.GetBytes(sb.ToString());
             var ok = SendBuffer(buf);
             var lines = ReadMultiString();
+            Console.WriteLine("\r\n\r\n{0}\r\n\r\n", string.Join(Environment.NewLine, lines));
             return ok;
         }
         catch (Exception ex)
