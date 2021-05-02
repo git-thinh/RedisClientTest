@@ -6,7 +6,28 @@ using System.Text;
 
 public class RedisBase : IDisposable
 {
-    static readonly byte[] _END_DATA = new byte[] { 13, 10 }; //= \r\n
+    internal static readonly byte[] _END_DATA = new byte[] { 13, 10 }; //= \r\n
+    internal static byte[] __notifyBodyCreate(string channel, string value)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.Append("*3\r\n");
+        sb.Append("$7\r\nPUBLISH\r\n");
+        sb.AppendFormat("${0}\r\n{1}\r\n", channel.Length, channel);
+        sb.AppendFormat("${0}\r\n{1}\r\n", value.Length, value);
+        byte[] buf = Encoding.UTF8.GetBytes(sb.ToString());
+        return buf;
+    }
+    internal static byte[] __combine(int size, params byte[][] arrays)
+    {
+        byte[] rv = new byte[size];
+        int offset = 0;
+        foreach (byte[] array in arrays)
+        {
+            System.Buffer.BlockCopy(array, 0, rv, offset, array.Length);
+            offset += array.Length;
+        }
+        return rv;
+    }
 
     private Socket socket;
     private BufferedStream bstream;
@@ -16,16 +37,25 @@ public class RedisBase : IDisposable
     public string Host { get; }
     public int Port { get; }
     public int SendTimeout { get; }
+    public int ReceiveTimeout { get; }
     public int DatabaseNumber { get; }
     public string Password { get; }
 
-    internal RedisBase(string host, int port,
-        string password, int sendTimeout, 
+    public bool IsNotifyChannal { get; set; }
+    public bool IsNotifyLog { get; set; }
+
+    internal RedisBase(
+        string host, 
+        int port,
+        string password, 
+        int sendTimeout,
+        int recieveTimeout,
         int bufferSizeRead)
     {
         this.Host = host;
         this.Port = port;
         this.SendTimeout = sendTimeout;
+        this.ReceiveTimeout = ReceiveTimeout;
         this.Password = password;
 
         this.BufferSizeRead = bufferSizeRead;
@@ -34,9 +64,11 @@ public class RedisBase : IDisposable
         socket.NoDelay = true;
         socket.ReceiveTimeout = SendTimeout;
         socket.ReceiveBufferSize = int.MaxValue;
+
+        Connect();
     }
 
-    public void Connect()
+    void Connect()
     {
         socket.Connect(Host, Port);
         if (!socket.Connected)
@@ -47,6 +79,9 @@ public class RedisBase : IDisposable
         }
         bstream = new BufferedStream(new NetworkStream(socket), this.BufferSizeRead);
     }
+
+
+
 
     public bool SelectDb(int indexDb)
     {
@@ -67,6 +102,24 @@ public class RedisBase : IDisposable
         return false;
     }
 
+
+
+    public bool PUBLISH(string channel, string value)
+    {
+        try
+        {
+            byte[] buf = __notifyBodyCreate(channel, value);
+            return SendBuffer(buf);
+        }
+        catch (Exception ex)
+        {
+        }
+        return false;
+    }
+
+
+
+
     internal bool SendBuffer(byte[] buf)
     {
         if (socket == null) Connect();
@@ -82,6 +135,8 @@ public class RedisBase : IDisposable
         }
         return true;
     }
+
+
 
     internal string ReadLine()
     {

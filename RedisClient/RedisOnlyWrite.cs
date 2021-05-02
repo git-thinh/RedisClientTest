@@ -5,13 +5,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-public class RedisOnlyWrite : IDisposable
+public class RedisOnlyWrite : RedisBase
 {
-    Socket socket;
-    BufferedStream bstream;
-    const int BUFFER_SIZE_READ = 255; // 255b || 16kb || 64kb
-    static readonly byte[] _END_DATA = new byte[] { 13, 10 }; //= \r\n
-
     long __id = 0;
     Dictionary<long, string> __notifier = new Dictionary<long, string>();
     Dictionary<long, AutoResetEvent> __signals = new Dictionary<long, AutoResetEvent>();
@@ -21,43 +16,19 @@ public class RedisOnlyWrite : IDisposable
     Queue<long> __queue_ids = new Queue<long>();
     Thread ___threadPool = null;
 
-    public string Host { get; }
-    public int Port { get; }
-    public int SendTimeout { get; }
-    public int DatabaseNumber { get; }
-    public string Password { get; }
-    public bool IsNotifyLog { get; }
-    public bool IsNotifyChannal { get; }
-
-    public RedisOnlyWrite(string host = "localhost", int port = 6379,
-        string password = "", 
-        bool notifyLog = true, bool notifyChannel = true,
-        int sendTimeout = 60 * 1000)
+    public RedisOnlyWrite(
+        string host = "localhost",
+        int port = 6379,
+        string password = "",
+        int sendTimeout = 3 * 60 * 1000, // 5 minus
+        int recieveTimeout = 5000, // 5 seconds        
+        int bufferSizeRead = 255, // 255 bytes
+        bool notifyChannal = true,
+        bool notifyLog = true)
+        : base(host, port, password, sendTimeout, recieveTimeout, bufferSizeRead)
     {
-        this.Host = host;
-        this.Port = port;
-        this.SendTimeout = sendTimeout;
-        this.Password = password;
-        this.IsNotifyChannal = notifyChannel;
-        this.IsNotifyLog = notifyLog;
-    }
-
-    public void Connect()
-    {
-        socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        socket.NoDelay = true;
-        socket.SendTimeout = SendTimeout;
-        socket.SendBufferSize = int.MaxValue;
-        socket.Connect(Host, Port);
-        if (!socket.Connected)
-        {
-            socket.Close();
-            socket = null;
-            return;
-        }
-        bstream = new BufferedStream(new NetworkStream(socket), BUFFER_SIZE_READ);
-        //if (Password != null)
-        //    SendExpectSuccess("AUTH", Password);
+        IsNotifyChannal = notifyChannal;
+        IsNotifyLog = notifyLog;
 
         if (___threadPool == null)
         {
@@ -88,72 +59,49 @@ public class RedisOnlyWrite : IDisposable
                 if (__notifier.ContainsKey(id))
                     noti = __notifier[id];
 
-            if (socket == null) Connect();
-            if (socket != null)
+            try
             {
-                try
+                SendBuffer(buf);
+
+                // :1 :0 +OK +Background saving started
+                string line = ReadLine();
+                if (!string.IsNullOrEmpty(line) && (line[0] == '+' || line[0] == ':'))
+                    ok = 1;
+
+                if (!string.IsNullOrEmpty(noti))
                 {
-                    socket.Send(buf);
-
-                    // :1 :0 +OK +Background saving started
-                    string line = ReadLine();
-                    if (!string.IsNullOrEmpty(line) && (line[0] == '+' || line[0] == ':'))
-                        ok = 1;
-
-                    if (!string.IsNullOrEmpty(noti))
+                    var arr = noti.Split('^');
+                    if (arr.Length > 1)
                     {
-                        var arr = noti.Split('^');
-                        if (arr.Length > 1)
+                        byte[] notiBuf = null;
+                        string channel = arr[0],
+                            msg = noti.Substring(channel.Length + 1, noti.Length - 1 - channel.Length) +
+                            DateTime.Now.ToString("^yyyyMMddHHmmss");
+                        if (channel.Length > 0)
                         {
-                            byte[] notiBuf = null;
-                            string channel = arr[0],
-                                msg = noti.Substring(channel.Length + 1, noti.Length - 1 - channel.Length) +
-                                DateTime.Now.ToString("^yyyyMMddHHmmss");
-                            if (channel.Length > 0)
+                            if (IsNotifyChannal)
                             {
-                                if (IsNotifyChannal)
-                                {
-                                    notiBuf = __notifyBodyCreate(channel, msg);
-                                    socket.Send(notiBuf);
-                                    ReadLine();
-                                }
-                            }
-                            if (IsNotifyLog)
-                            {
-                                notiBuf = __notifyBodyCreate("__LOG_ALL", msg);
-                                socket.Send(notiBuf);
+                                notiBuf = __notifyBodyCreate(channel, msg);
+                                SendBuffer(notiBuf);
                                 ReadLine();
                             }
                         }
+                        if (IsNotifyLog)
+                        {
+                            notiBuf = __notifyBodyCreate("__LOG_ALL", msg);
+                            SendBuffer(notiBuf);
+                            ReadLine();
+                        }
                     }
                 }
-                catch (SocketException ex)
-                {
-                    socket.Close();
-                    socket = null;
-                }
+            }
+            catch (Exception ex)
+            {
             }
 
             lock (__results) __results.Add(id, ok);
             sig.Set();
         }
-    }
-
-    public bool SelectDb(int indexDb)
-    {
-        try
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append("*2\r\n");
-            sb.Append("$6\r\nSELECT\r\n");
-            sb.AppendFormat("${0}\r\n{1}\r\n", indexDb.ToString().Length, indexDb);
-            byte[] buf = Encoding.UTF8.GetBytes(sb.ToString());
-            return Send(buf, REDIS_CMD.SELECT, "", "");
-        }
-        catch (Exception ex)
-        {
-        }
-        return false;
     }
 
     bool Send(byte[] buf, REDIS_CMD cmd, string key, string notify)
@@ -217,32 +165,6 @@ public class RedisOnlyWrite : IDisposable
         }
         return false;
     }
-
-    static byte[] __notifyBodyCreate(string channel, string value)
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.Append("*3\r\n");
-        sb.Append("$7\r\nPUBLISH\r\n");
-        sb.AppendFormat("${0}\r\n{1}\r\n", channel.Length, channel);
-        sb.AppendFormat("${0}\r\n{1}\r\n", value.Length, value);
-        byte[] buf = Encoding.UTF8.GetBytes(sb.ToString());
-        return buf;
-    }
-
-    public bool PUBLISH(string channel, string value)
-    {
-        try
-        {
-            byte[] buf = __notifyBodyCreate(channel, value);
-            return Send(buf, REDIS_CMD.PUBLISH, "", "");
-        }
-        catch (Exception ex)
-        {
-        }
-        return false;
-    }
-
-
 
     public bool SET(string key, string value, string notify = "")
     {
@@ -338,37 +260,6 @@ public class RedisOnlyWrite : IDisposable
 
 
 
-
-
-    static byte[] __combine(int size, params byte[][] arrays)
-    {
-        byte[] rv = new byte[size];
-        int offset = 0;
-        foreach (byte[] array in arrays)
-        {
-            System.Buffer.BlockCopy(array, 0, rv, offset, array.Length);
-            offset += array.Length;
-        }
-        return rv;
-    }
-
-    string ReadLine()
-    {
-        StringBuilder sb = new StringBuilder();
-        int c;
-        while ((c = bstream.ReadByte()) != -1)
-        {
-            if (c == '\r')
-                continue;
-            if (c == '\n')
-                break;
-            sb.Append((char)c);
-        }
-        string s = sb.ToString().Trim();
-        //Console.WriteLine(s);
-        return s;
-    }
-
     ~RedisOnlyWrite()
     {
         try
@@ -384,20 +275,7 @@ public class RedisOnlyWrite : IDisposable
         __queue_event.Close();
         __queue_ids.Clear();
 
-        Dispose(false);
-    }
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            socket.Close();
-            socket = null;
-        }
+        Dispose();
     }
 }
 

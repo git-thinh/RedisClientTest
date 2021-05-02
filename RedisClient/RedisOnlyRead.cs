@@ -11,10 +11,10 @@ public class RedisOnlyRead : RedisBase
         string host = "localhost",
         int port = 6379,
         string password = "",
-        int sendTimeout = 15 * 60 * 1000,
-        // 8kb || 64kb
-        int bufferSizeRead = 64 * 1024)
-        : base(host, port, password, sendTimeout, bufferSizeRead)
+        int sendTimeout = 5000, // 5 seconds
+        int recieveTimeout = 3 * 60 * 1000, // 3 minus        
+        int bufferSizeRead = 512 * 1024) // 8kb || 64kb
+        : base(host, port, password, sendTimeout, recieveTimeout, bufferSizeRead)
     {
     }
 

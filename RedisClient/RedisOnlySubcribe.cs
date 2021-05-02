@@ -8,13 +8,14 @@ using System.Text;
 public class RedisOnlySubcribe : RedisBase
 {
     public RedisOnlySubcribe(
-        string host = "localhost", 
+        string host = "localhost",
         int port = 6379,
-        string password = "", 
-        int sendTimeout = 15 * 60 * 1000,
-        // 255 byte
-        int bufferSizeRead = 255)
-        : base(host, port, password, sendTimeout, bufferSizeRead) {    
+        string password = "",
+        int sendTimeout = 5000,
+        int recieveTimeout = 5000,
+        int bufferSizeRead = 64 * 1024) // 8kb = 8192 bytes
+        : base(host, port, password, sendTimeout, recieveTimeout, bufferSizeRead)
+    {
     }
 
 

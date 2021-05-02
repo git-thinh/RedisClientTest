@@ -13,7 +13,6 @@ namespace RedisClientReadTest
             Thread.Sleep(1000);
 
             var redis = new RedisOnlyRead("localhost", 1001);
-            redis.Connect();
             if (!redis.SelectDb(15))
                 throw new Exception("CANNOT CONNECT TO REDIS...");
 
