@@ -14,7 +14,7 @@ namespace RedisClientReadTest
 
             var redis = new RedisOnlyRead("localhost", 1001);
             redis.Connect();
-            redis.Db = 15;
+            redis.SelectDb(15);
 
             string key1 = redis.GET("key-1");
             Console.WriteLine("key-1 = {0}", key1);

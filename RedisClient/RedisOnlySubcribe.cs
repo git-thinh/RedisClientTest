@@ -5,7 +5,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text;
 
-public class RedisOnlyRead : IDisposable
+public class RedisOnlySubcribe : IDisposable
 {
     Socket socket;
     BufferedStream bstream;
@@ -18,7 +18,7 @@ public class RedisOnlyRead : IDisposable
     public int DatabaseNumber { get; }
     public string Password { get; }
 
-    public RedisOnlyRead(string host = "localhost", int port = 6379,
+    public RedisOnlySubcribe(string host = "localhost", int port = 6379,
         string password = "", int sendTimeout = 15 * 60 * 1000)
     {
         this.Host = host;
@@ -275,7 +275,7 @@ public class RedisOnlyRead : IDisposable
         throw new ResponseException("Unexpected reply: " + s);
     }
 
-    ~RedisOnlyRead() => Dispose(false);
+    ~RedisOnlySubcribe() => Dispose(false);
     public void Dispose()
     {
         Dispose(true);

@@ -139,23 +139,7 @@ public class RedisOnlyWrite : IDisposable
         }
     }
 
-    int db;
-    public int Db
-    {
-        get
-        {
-            return db;
-        }
-
-        set
-        {
-            bool ok = selectDb(value);
-            if (ok)
-                db = value;
-        }
-    }
-
-    bool selectDb(int indexDb)
+    public bool SelectDb(int indexDb)
     {
         try
         {

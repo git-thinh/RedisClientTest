@@ -12,7 +12,7 @@ namespace RedisClientTest
 
             var redis = new RedisOnlyWrite("localhost", 1000);
             redis.Connect();
-            redis.Db = 15;
+            redis.SelectDb(15);
 
             bool ok1 = false, ok2 = false, ok3 = false, ok4 = false, ok5 = false;
 
